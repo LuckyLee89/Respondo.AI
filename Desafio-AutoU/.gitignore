@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Models & data
+models/
+*.joblib
+*.pickle
+*.pkl
+nltk_data/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AutoU — Classificador & Respostas de Email</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-sky-50"
+  >
+    <header class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-6 pt-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-5">
+          <!-- Avatar / Logo -->
+          <div class="relative group">
+            <img
+              id="brandLogo"
+              src="/static/logo.png"
+              alt="Logo"
+              class="h-24 w-24 md:h-28 md:w-28 rounded-full bg-white p-1 shadow object-cover cursor-pointer"
+            />
+            <!-- Botão de editar -->
+            <button
+              id="brandLogoEdit"
+              type="button"
+              class="absolute -bottom-2 -right-2 opacity-0 group-hover:opacity-100 transition bg-violet-600 hover:bg-violet-700 text-white rounded-full w-9 h-9 grid place-content-center shadow"
+              aria-label="Alterar logo"
+              title="Alterar logo"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4.5 h-4.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 7h3l2-3h8l2 3h3v12H3V7z"
+                />
+                <circle cx="12" cy="13" r="4" fill="currentColor" />
+              </svg>
+            </button>
+            <input
+              id="brandLogoFile"
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml"
+              class="hidden"
+            />
+          </div>
+
+          <!-- Nome + ações -->
+          <div>
+            <div class="flex items-center gap-2">
+              <h1
+                id="brandName"
+                class="text-3xl md:text-4xl font-bold text-slate-800"
+              >
+                AutoU
+              </h1>
+              <button
+                id="editBrandNameBtn"
+                type="button"
+                class="text-xs text-violet-600 hover:text-violet-700 underline"
+              >
+                editar nome
+              </button>
+            </div>
+            <p class="text-sm text-slate-500 -mt-1">
+              Classificação inteligente e respostas automáticas para e-mails
+            </p>
+            <div class="mt-1 flex items-center gap-2">
+              <button
+                id="resetBrandBtn"
+                type="button"
+                class="text-xs text-slate-400 hover:text-slate-600 underline"
+              >
+                Resetar logo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <span class="pill">Desafio AutoU</span>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-6 pb-16">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 mt-8">
+        <section class="glass rounded-2xl shadow-2xl p-6 lg:col-span-7">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Entrada</h2>
+            <span class="text-xs text-slate-500"
+              >.pdf ou .txt • ou cole o texto</span
+            >
+          </div>
+
+          <form id="emailForm" class="space-y-5" enctype="multipart/form-data">
+            <!-- Dropzone -->
+            <div
+              id="dropzone"
+              class="group border-2 border-dashed border-slate-200 rounded-2xl p-7 text-center cursor-pointer transition hover:border-violet-300 hover:bg-violet-50/50"
+            >
+              <input
+                id="email_file"
+                name="email_file"
+                type="file"
+                accept=".pdf,.txt"
+                class="hidden"
+              />
+              <div class="flex flex-col items-center">
+                <svg
+                  class="w-10 h-10 text-slate-400 group-hover:text-violet-500 transition"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 16V4m0 0L4 7m3-3l3 3M13 8h6m-6 4h6m-6 4h6"
+                  />
+                </svg>
+                <p class="mt-2 text-sm text-slate-600">
+                  Arraste e solte aqui, ou
+                  <span class="text-violet-600 underline"
+                    >clique para selecionar</span
+                  >
+                </p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Tamanho máximo recomendado: 5MB
+                </p>
+              </div>
+              <div id="filePill" class="hidden mt-3 justify-center"></div>
+            </div>
+
+            <!-- Textarea -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1"
+                >Ou cole o texto do email</label
+              >
+              <textarea
+                id="email_text"
+                name="email_text"
+                rows="10"
+                placeholder="Ex.: Bom dia, poderiam informar o status do chamado 123456? ..."
+                class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              ></textarea>
+            </div>
+
+            <!-- Ações -->
+            <div class="flex items-center gap-3">
+              <button
+                id="submitBtn"
+                type="submit"
+                class="inline-flex items-center gap-2 bg-violet-600 text-white px-5 py-2.5 rounded-xl hover:bg-violet-700 transition"
+              >
+                <span class="sr-only">Processar Email</span>
+                <svg
+                  id="iconSend"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+                </svg>
+                <svg
+                  id="iconSpinner"
+                  class="hidden animate-spin h-5 w-5"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4A4 4 0 004 12z"
+                  ></path>
+                </svg>
+                <span id="submitText">Processar Email</span>
+              </button>
+              <button
+                id="clearBtn"
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                Limpar
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="glass rounded-2xl shadow-2xl p-6 lg:col-span-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Resultado</h2>
+            <div class="text-sm text-slate-500">
+              Confiança: <span id="prob">—</span>
+            </div>
+          </div>
+
+          <div id="resultEmpty" class="text-slate-500 text-sm">
+            Envie um email para ver a classificação e a resposta sugerida.
+          </div>
+
+          <div id="result" class="hidden space-y-5">
+            <!-- Badge -->
+            <div id="badge"></div>
+
+            <!-- Resposta -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-sm font-medium text-slate-700"
+                  >Resposta sugerida</label
+                >
+                <div class="flex items-center gap-1 text-xs">
+                  <span class="text-slate-500">Idioma:</span>
+                  <div
+                    class="inline-flex rounded-lg overflow-hidden border border-slate-200"
+                  >
+                    <button
+                      type="button"
+                      id="btnLangPT"
+                      class="px-2 py-1 bg-slate-100"
+                    >
+                      PT
+                    </button>
+                    <button type="button" id="btnLangEN" class="px-2 py-1">
+                      EN
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <textarea
+                id="reply"
+                rows="10"
+                class="w-full border border-slate-200 rounded-xl p-3 text-sm"
+              ></textarea>
+              <div class="mt-2 flex items-center gap-2">
+                <button
+                  id="copyBtn"
+                  class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm hover:bg-slate-50"
+                >
+                  Copiar
+                </button>
+                <span id="copyState" class="text-xs text-slate-500 hidden"
+                  >Copiado ✓</span
+                >
+              </div>
+            </div>
+
+            <!-- Explicação -->
+            <details class="bg-slate-50 rounded-xl p-4">
+              <summary
+                class="cursor-pointer select-none text-sm font-semibold text-slate-700"
+              >
+                Explicação (por que foi classificado assim?)
+              </summary>
+              <div id="explain" class="mt-3 text-sm text-slate-700"></div>
+            </details>
+
+            <!-- Prévia -->
+            <details class="bg-slate-50 rounded-xl p-4">
+              <summary
+                class="cursor-pointer select-none text-sm font-semibold text-slate-700"
+              >
+                Prévia do texto
+              </summary>
+              <div
+                id="preview"
+                class="text-sm mt-3 whitespace-pre-line max-h-64 overflow-auto"
+              ></div>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <footer class="text-center text-xs text-slate-400 mt-10">
+        © AutoU • by Lincon A. Pereira
+      </footer>
+    </main>
+
+    <!-- MODAL: preview + consentimento da logo -->
+    <div
+      id="logoPreviewModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl w-[92vw] max-w-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-800">
+          Pré-visualizar nova logo
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Verifique se a imagem está correta. Ao confirmar, você declara que
+          possui direito de uso dessa marca.
+        </p>
+        <div class="mt-4 flex items-center justify-center">
+          <img
+            id="logoPreviewImg"
+            src=""
+            alt="Preview da logo"
+            class="h-28 w-28 rounded-full bg-white p-1 shadow object-cover"
+          />
+        </div>
+        <label class="mt-4 flex items-start gap-2 text-sm text-slate-700">
+          <input id="logoConsent" type="checkbox" class="mt-1" />
+          <span
+            >Concordo em usar essa imagem como logo e declaro possuir
+            autorização.</span
+          >
+        </label>
+        <div class="mt-5 flex justify-end gap-2">
+          <button
+            id="logoCancelBtn"
+            class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+          <button
+            id="logoApplyBtn"
+            class="px-4 py-2 rounded-lg bg-violet-600 text-white disabled:opacity-50"
+            disabled
+          >
+            Concordo e aplicar
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

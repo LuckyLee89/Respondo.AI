@@ -1,0 +1,52 @@
+# app/routes/email.py
+# from ..services.classifier_service import classifier_service, detect_intent
+# from ..services.response_service import build_reply
+# @email_bp.post("/classify")
+# def classify():
+#     try:
+#         raw_text = ""
+#         if "email_file" in request.files and request.files["email_file"].filename:
+#             f = request.files["email_file"]
+#             name = f.filename.lower()
+#             if name.endswith(".pdf"):
+#                 raw_text = extract_text_from_pdf(f.stream)
+#             elif name.endswith(".txt"):
+#                 raw_text = extract_text_from_txt(f.stream)
+#             else:
+#                 return jsonify({"ok": False, "error": "Formato de arquivo não suportado. Envie .txt ou .pdf."}), 400
+#         else:
+#             raw_text = request.form.get("email_text", "")
+
+#         if not raw_text or not raw_text.strip():
+#             return jsonify({"ok": False, "error": "Nenhum texto de email fornecido."}), 400
+#         if len(raw_text.strip()) < 10:
+#             return jsonify({"ok": False, "error": "Texto muito curto para classificar. Envie mais detalhes."}), 400
+
+#         lang = detect_language(raw_text)             # 'pt' ou 'en'
+#         clean = preprocess(raw_text, lang=lang)
+#  
+#         label, proba, top_feats = classifier_service.predict(clean)
+#      
+#         intent = detect_intent(raw_text, lang)
+    
+#         reply_pt = build_reply(raw_text, category=label, lang='pt', intent=intent).strip()
+#         reply_en = build_reply(raw_text, category=label, lang='en', intent=intent).strip()
+
+#         return jsonify({
+#             "ok": True,
+#             "category": label,
+#             "probability": round(proba, 3),
+#             "reply_pt": reply_pt,
+#             "reply_en": reply_en,
+#             "reply_lang_default": "pt",  # UI começa em PT
+#             "explanation": {
+#                 "top_features": top_feats,
+#                 "language": lang,
+#                 "intent": intent
+#             },
+#             "text_preview": raw_text[:2000]
+#         })
+#     except Exception as e:
+#         return jsonify({"ok": False, "error": str(e)}), 500
+
+# app/routes/email.py
