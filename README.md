@@ -98,41 +98,6 @@ flask run --port 8080
 
 ---
 
-## 🌐 Deploy no Render
-
-1. Crie `Procfile` na raiz:
-
-   ```
-   web: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
-   ```
-
-2. (Opcional) defina `runtime.txt`:
-
-   ```
-   python-3.10.14
-   ```
-
-3. Faça push para o GitHub e crie um **Web Service** no [Render](https://render.com/):
-
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: mesmo do Procfile
-   - Health Check Path: `/health`
-
-4. Defina variáveis de ambiente no Render:
-
-   - `PROVIDER=openai`
-   - `OPENAI_API_KEY=...`
-   - `OPENAI_MODEL=gpt-4o-mini`
-   - `OPENAI_TIMEOUT=8`
-   - `OPENAI_GEN_TIMEOUT=10`
-   - `REQUIRE_AI=true`
-   - `FORCE_API_CLASSIFY=0`
-   - `LOGIN_PASSWORD=suasenha`
-
-5. Acesse a URL gerada (ex.: `https://autou.onrender.com`).
-
----
-
 ## 📂 Estrutura do Projeto
 
 ```
@@ -157,5 +122,3 @@ wsgi.py
 - A primeira página é o **login**.
 - A senha é validada com `LOGIN_PASSWORD` definida no `.env`.
 - O login é armazenado no **localStorage** → se atualizar a página, continua logado.
-- Botão de **logout** para encerrar a sessão.
-- Campo de senha com **mostrar/ocultar (olhinho)** integrado.
