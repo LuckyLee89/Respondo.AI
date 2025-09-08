@@ -1,11 +1,15 @@
 # AutoU — Classificação Inteligente de E-mails
 
-Aplicação web para **classificar e-mails** e **sugerir respostas automáticas** (PT/EN) usando NLP + IA.
+Aplicação web para **classificar e-mails** e **sugerir respostas automáticas** (PT/EN) usando NLP + IA.  
+Agora com **tela de login** protegida por senha e suporte a logout.
 
 ---
 
 ## ✨ Principais features
 
+- Tela inicial de **login** (com armazenamento local de sessão).
+- Campo de senha com **mostrar/ocultar** (olhinho).
+- Botão de **logout** para encerrar sessão.
 - Upload de `.txt` e `.pdf` ou colagem de texto.
 - Classificação **Produtivo** × **Improdutivo** com subintenções (Status, Erro, Acesso, Anexo, Encerramento, Suporte, Agradecimento, Saudação, Documento, Geral).
 - Resposta sugerida **PT/EN** (templates locais + geração por OpenAI ou HuggingFace).
@@ -62,6 +66,10 @@ cp .env.example .env
 - Para usar **modo local (fastpath)**, deixe `PROVIDER=local`.
 - Para usar **OpenAI**, defina `PROVIDER=openai` e preencha `OPENAI_API_KEY`.
 - Para usar **HuggingFace**, defina `PROVIDER=huggingface` e preencha `HUGGINGFACE_API_KEY`.
+- Para ativar login por senha, defina:
+  ```ini
+  LOGIN_PASSWORD=suasenha
+  ```
 
 5. **Inicie o app**:
 
@@ -119,6 +127,7 @@ flask run --port 8080
    - `OPENAI_GEN_TIMEOUT=10`
    - `REQUIRE_AI=true`
    - `FORCE_API_CLASSIFY=0`
+   - `LOGIN_PASSWORD=suasenha`
 
 5. Acesse a URL gerada (ex.: `https://autou.onrender.com`).
 
@@ -129,10 +138,10 @@ flask run --port 8080
 ```
 app/
  ├── __init__.py        # create_app
- ├── routes/            # rotas Flask (email, config, health)
+ ├── routes/            # rotas Flask (email, config, health, login)
  ├── services/          # ai_provider, classifier, nlp, response
  ├── utils/             # extract (PDF/txt)
- ├── templates/         # index.html
+ ├── templates/         # index.html, login.html
  └── static/            # app.js, style.css
 intents_config.json     # sinônimos/heurísticas
 requirements.txt
@@ -140,3 +149,13 @@ Procfile
 run.py
 wsgi.py
 ```
+
+---
+
+## 🔑 Login
+
+- A primeira página é o **login**.
+- A senha é validada com `LOGIN_PASSWORD` definida no `.env`.
+- O login é armazenado no **localStorage** → se atualizar a página, continua logado.
+- Botão de **logout** para encerrar a sessão.
+- Campo de senha com **mostrar/ocultar (olhinho)** integrado.
