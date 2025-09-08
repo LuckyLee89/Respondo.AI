@@ -10,7 +10,6 @@ def _ticket(text: str):
     return m.group(1) if m else None
 
 def _norm(s: str) -> str:
-    # normaliza acento e faz lower para bater palavras com e sem acentos
     s = unicodedata.normalize("NFD", s)
     s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
     return (s or "").lower().strip()
@@ -58,7 +57,7 @@ def _has_attachment(text: str) -> bool:
 def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | None = None) -> str:
     """
     Gera resposta automática alinhada à subintenção.
-    intent: STATUS, ATTACHMENT, ACCESS, ERROR, CLOSURE, THANKS, GREETINGS, OTHER
+    intent: STATUS, ATTACHMENT, ACCESS, ERROR, CLOSURE, THANKS, GREETINGS, SUPPORT, NON_MESSAGE, OTHER
     """
     t = (raw_text or "").strip()
     ticket = _ticket(t)
@@ -109,7 +108,6 @@ def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | No
                         f"We'll get back to you shortly with guidance.\n\n"
                         f"{sign}"
                     )
-                # sem anexo → peça evidências
                 return (
                     f"Hi,\n\n"
                     f"Sorry about the issue"
@@ -132,6 +130,13 @@ def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | No
             return f"Hi,\n\nYou're welcome! We're here if you need anything else.\n\n{sign}"
         if it == "GREETINGS":
             return f"Hi,\n\nThanks for the message and kind wishes! (No action required.)\n\n{sign}"
+        if it == "NON_MESSAGE":
+            return (
+                f"Hi,\n\n"
+                f"Thanks for sending your document. This mailbox is dedicated to support requests, "
+                f"so no action is required at this time. If you need assistance, please describe the request here.\n\n"
+                f"{sign}"
+            )
         return (
             f"Hi,\n\nThank you for your message. No action is required at this time. "
             f"We're at your disposal if you need anything else.\n\n{sign}"
@@ -178,7 +183,6 @@ def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | No
                     f"Retornaremos em breve com as orientações.\n\n"
                     f"{sign}"
                 )
-            # sem anexo → peça evidências
             return (
                 f"Olá,\n\n"
                 f"Lamentamos o ocorrido"
@@ -187,7 +191,6 @@ def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | No
                 f"{sign}"
             )
 
-        # padrão produtivo
         return (
             f"Olá,\n\n"
             f"Obrigado pelo contato"
@@ -202,6 +205,13 @@ def build_reply(raw_text: str, category: str, lang: str = 'pt', intent: str | No
         return f"Olá,\n\nNós que agradecemos! Ficamos à disposição para qualquer outra necessidade.\n\n{sign}"
     if it == "GREETINGS":
         return f"Olá,\n\nObrigado pela mensagem e pelos votos! (Não é necessário retorno.)\n\n{sign}"
+    if it == "NON_MESSAGE":
+        return (
+            f"Olá,\n\n"
+            f"Obrigado pelo envio do documento. Este canal é voltado a solicitações de suporte/atendimento; "
+            f"no momento não identificamos ações pendentes. Se precisar de algo, descreva a demanda por aqui.\n\n"
+            f"{sign}"
+        )
     return (
         f"Olá,\n\nObrigado pela mensagem. No momento, não identificamos ações pendentes. "
         f"Permanecemos à disposição para o que precisar.\n\n{sign}"

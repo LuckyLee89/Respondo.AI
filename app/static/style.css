@@ -83,6 +83,22 @@ body {
   font-size: 0.82rem;
   padding: 0.3rem 0.7rem;
 }
+.pill-support {
+  background: #fff7e6;
+  color: #b35900;
+  border: 1px solid #ffd9b3;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.7rem;
+}
+.pill-nonmessage {
+  background: #f9f9f9;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.7rem;
+}
 .pill-other {
   background: #f3f4f6;
   color: #6b7280;

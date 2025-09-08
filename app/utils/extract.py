@@ -1,5 +1,5 @@
 from typing import BinaryIO
-import re
+import re, os
 
 def _beautify_preview(text: str) -> str:
     """
@@ -37,34 +37,57 @@ def _beautify_preview(text: str) -> str:
 
 def extract_text_from_pdf(fh: BinaryIO) -> str:
     """
-    Tenta extrair com PyMuPDF (melhor qualidade). Se não houver, usa PyPDF2.
-    Sempre aplica _beautify_preview no resultado.
+    Extrai texto de PDF com PyMuPDF (preferido) e cai para PyPDF2 se falhar.
+    Respeita PDF_MAX_PAGES (env) e garante fechamento de doc/reposition do stream.
     """
-    # Tenta PyMuPDF
+    MAX_PAGES = int(os.getenv("PDF_MAX_PAGES", "40"))
+
+    # -------- TENTATIVA 1: PyMuPDF --------
     try:
         import fitz  # PyMuPDF
-        data = fh.read()
-        doc = fitz.open(stream=data, filetype="pdf")
-        pages = []
-        for page in doc:
-            pages.append(page.get_text("text"))
-        raw = "\n\n".join(pages)
-        return _beautify_preview(raw)
     except Exception:
-        pass
+        fitz = None
 
-    # Fallback: PyPDF2
+    if fitz is not None:
+        doc = None
+        try:
+            data = fh.read()  # lê tudo (SpooledTemporaryFile etc.)
+            doc = fitz.open(stream=data, filetype="pdf")
+            pages = []
+            for i, page in enumerate(doc):
+                if i >= MAX_PAGES:
+                    break
+                pages.append(page.get_text("text"))
+            raw = "\n\n".join(pages)
+            return _beautify_preview(raw)
+        except Exception:
+            # cai para o fallback
+            pass
+        finally:
+            try:
+                if doc is not None:
+                    doc.close()
+            except Exception:
+                pass
+
+    # -------- TENTATIVA 2: PyPDF2 (fallback) --------
     try:
         from PyPDF2 import PdfReader
-        fh.seek(0)
+        try:
+            fh.seek(0)  # reposiciona o ponteiro caso já tenha lido acima
+        except Exception:
+            pass
         reader = PdfReader(fh)
         text = []
-        for page in reader.pages:
+        for i, page in enumerate(reader.pages):
+            if i >= MAX_PAGES:
+                break
             text.append(page.extract_text() or "")
         raw = "\n\n".join(text)
         return _beautify_preview(raw)
     except Exception:
         return ""
+
 
 def extract_text_from_txt(fh: BinaryIO) -> str:
     data = fh.read()

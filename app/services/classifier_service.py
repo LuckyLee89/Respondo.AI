@@ -56,14 +56,6 @@ GREET_EN = r"(merry|happy (holidays|christmas|new year)|congratulations|congrats
 CLOSURE_PT = r"(pode(m)? (encerrar|fechar)|encerrar (o )?(chamado|ticket|protocolo)|fechar (o )?(chamado|ticket|protocolo)|finalizar (o )?(chamado|ticket|protocolo)|encerramento|desconsiderar|problema (ja )?resolvido)"
 CLOSURE_EN = r"((please|kindly)\s*)?(close|closed|resolved|issue\s*closed)(\s*(the )?(ticket|case|issue))?"
 
-
-import re, unicodedata
-
-def _norm(s: str) -> str:
-    s = unicodedata.normalize("NFD", s)
-    s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
-    return s.lower()
-
 import re, unicodedata
 
 def _norm(s: str) -> str:

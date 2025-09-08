@@ -42,7 +42,7 @@
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-4.5 h-4.5"
                 viewBox="0 0 24 24"
-                fill="none"
+                fill="white"
                 stroke="currentColor"
               >
                 <path
@@ -110,6 +110,13 @@
           </div>
 
           <form id="emailForm" class="space-y-5" enctype="multipart/form-data">
+            <input
+              type="hidden"
+              id="preferred_lang"
+              name="preferred_lang"
+              value="auto"
+            />
+
             <!-- Dropzone -->
             <div
               id="dropzone"

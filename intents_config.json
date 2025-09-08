@@ -8,9 +8,9 @@
     "ACCESS",
     "SUPPORT",
     "GREETINGS",
+    "NON_MESSAGE",
     "OTHER"
   ],
-  "fastpath_confidence": 0.85,
   "synonyms": {
     "CLOSURE": [
       "encerrar o chamado",

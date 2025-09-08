@@ -14,7 +14,6 @@ def ensure_nltk():
 ensure_nltk()
 
 def detect_language(text: str) -> str:
-    """Heurística simples PT/EN com viés pró-PT quando houver empate ou termos técnicos mistos."""
     t = (text or "").lower()
 
     pt_markers = [
@@ -35,7 +34,7 @@ def detect_language(text: str) -> str:
     technical = ['gpu','driver','firmware','windows','log','screenshot','error','bug','rtx','intel','nvidia']
     tech_hits = sum(t.count(m) for m in technical)
 
-    if en_score >= pt_score + 2:
+    if en_score >= pt_score + 2 or (en_score == pt_score + 1 and tech_hits >= 2):
         return 'en'
     return 'pt'
 
@@ -46,10 +45,10 @@ def stopwords(lang='pt'):
 
 def preprocess(text: str, lang: str = 'pt') -> str:
     t = (text or "").lower()
-    t = re.sub(r'(?m)^>.*$', ' ', t)                   # contador de linhas
+    t = re.sub(r'(?m)^>.*$', ' ', t)                   # citações
     t = re.sub(r'https?://\S+|www\.\S+', ' ', t)       # urls
     t = re.sub(r'\b[\w\.-]+@[\w\.-]+\.\w+\b', ' ', t)  # emails
-    t = re.sub(r'\b\d{6,}\b', ' ', t)                  # lnumeros Longos
+    t = re.sub(r'\b\d{6,}\b', ' ', t)                  # numeros Longos
     t = re.sub(r'[^\w\s]', ' ', t)                     # pontuação
     t = re.sub(r'\s+', ' ', t)                         # espaços extras
     toks = [w for w in t.split() if w not in stopwords(lang)]

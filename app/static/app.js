@@ -3,6 +3,9 @@ let currentReplyLang = localStorage.getItem('replyLang') || 'pt';
 let replyPT = '';
 let replyEN = '';
 let loading = false;
+let lastResult = null;
+
+const REQUEST_TIMEOUT_MS = 25000; // timeout de rede
 
 // ===================== ELEMENTOS =========================
 const form = document.getElementById('emailForm');
@@ -44,9 +47,12 @@ const logoPreviewImg = document.getElementById('logoPreviewImg');
 const logoConsent = document.getElementById('logoConsent');
 const logoApplyBtn = document.getElementById('logoApplyBtn');
 const logoCancelBtn = document.getElementById('logoCancelBtn');
+const preferredLangInput = document.getElementById('preferred_lang');
+let userChoseLang = false;
 
 let pendingLogoDataURL = null;
 
+// ===================== BRANDING ==========================
 async function loadBranding() {
   try {
     const res = await fetch('/config');
@@ -189,6 +195,7 @@ function updateLangButtons() {
     btnLangEN.classList.add('bg-gray-100');
     btnLangPT.classList.remove('bg-gray-100');
   }
+  if (preferredLangInput) preferredLangInput.value = currentReplyLang;
 }
 
 function setBadge(category) {
@@ -200,10 +207,22 @@ function setBadge(category) {
   badge.appendChild(span);
 }
 
-function ensureHasInput() {
+function ensureHasValidInput() {
   const hasFile = fileInput.files && fileInput.files.length > 0;
-  const hasText = (emailText.value || '').trim().length > 0;
-  return hasFile || hasText;
+  const txt = (emailText.value || '').trim();
+  const hasTextMin = txt.length >= 10;
+  return hasFile || hasTextMin;
+}
+
+async function postWithTimeout(url, body, timeoutMs) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort('timeout'), timeoutMs);
+  try {
+    const res = await fetch(url, { method: 'POST', body, signal: ctrl.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
 }
 
 // ===================== DRAG & DROP ========================
@@ -239,13 +258,31 @@ fileInput.addEventListener('change', () => showFilePill(fileInput.files?.[0]));
 // ===================== IDIOMAS ============================
 btnLangPT.addEventListener('click', () => {
   currentReplyLang = 'pt';
+  userChoseLang = true;
   localStorage.setItem('replyLang', 'pt');
+  if (!replyPT) {
+    alert('Não há versão em PT desta resposta.');
+    return;
+  }
   reply.value = replyPT;
   updateLangButtons();
 });
 btnLangEN.addEventListener('click', () => {
   currentReplyLang = 'en';
+  userChoseLang = true;
   localStorage.setItem('replyLang', 'en');
+  if (!replyEN) {
+    alert(
+      'Sem versão em inglês para este resultado (mostrando PT, se disponível).',
+    );
+    if (replyPT) {
+      currentReplyLang = 'pt';
+      localStorage.setItem('replyLang', 'pt');
+      reply.value = replyPT;
+      updateLangButtons();
+    }
+    return;
+  }
   reply.value = replyEN;
   updateLangButtons();
 });
@@ -266,27 +303,52 @@ clearBtn.addEventListener('click', () => {
   showFilePill(null);
   result.classList.add('hidden');
   resultEmpty.classList.remove('hidden');
+  userChoseLang = false;
+  // limpa replies pra não “vazar” da submissão anterior
+  replyPT = '';
+  replyEN = '';
+  reply.value = '';
+  lastResult = null;
 });
 
 // ===================== SUBMIT =============================
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (loading) return;
-  if (!ensureHasInput()) {
-    alert('Envie um arquivo .pdf/.txt ou cole o texto do email.');
+  if (!ensureHasValidInput()) {
+    alert('Envie .pdf/.txt ou cole um texto com pelo menos 10 caracteres.');
     return;
   }
+  preferredLangInput.value = userChoseLang ? currentReplyLang || 'pt' : 'auto';
+
+  // limpa estado visual antes de enviar (evita confusão com dados antigos)
+  prob.textContent = '—';
+  badge.innerHTML = '';
+  explain.innerHTML = '';
+  preview.innerText = '';
+  reply.value = '';
+  replyPT = '';
+  replyEN = '';
+  lastResult = null;
 
   setLoading(true);
   try {
     const fd = new FormData(form);
-    const res = await fetch('/classify', { method: 'POST', body: fd });
-    const data = await res.json();
+    // timeout no fetch para evitar requests pendurados
+    const res = await postWithTimeout('/classify', fd, REQUEST_TIMEOUT_MS);
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error('Resposta inválida do servidor.');
+    }
 
-    if (!data.ok) {
-      alert(data.error || 'Erro ao processar.');
+    if (!res.ok || !data.ok) {
+      alert((data && data.error) || 'Erro ao processar.');
       return;
     }
+
+    lastResult = data;
 
     // Mostra o cartão de resultado
     resultEmpty.classList.add('hidden');
@@ -294,7 +356,7 @@ form.addEventListener('submit', async e => {
 
     // Confiança + badge de categoria
     prob.textContent = (data.probability ?? 0).toFixed(3);
-    setBadge(data.category); // <-- limpa e recria o chip Produtivo/Improdutivo
+    setBadge(data.category);
 
     // Pill de subintenção ao lado do chip
     const intent = (data.explanation && data.explanation.intent) || 'OTHER';
@@ -306,9 +368,10 @@ form.addEventListener('submit', async e => {
       CLOSURE: 'Encerramento',
       THANKS: 'Agradecimento',
       GREETINGS: 'Saudação',
+      SUPPORT: 'Suporte',
+      NON_MESSAGE: 'Documento',
       OTHER: 'Geral',
     };
-    const intentPill = document.createElement('span');
     const intentClassMap = {
       STATUS: 'pill pill-status ml-2',
       ATTACHMENT: 'pill pill-attachment ml-2',
@@ -317,19 +380,36 @@ form.addEventListener('submit', async e => {
       CLOSURE: 'pill pill-closure ml-2',
       THANKS: 'pill pill-thanks ml-2',
       GREETINGS: 'pill pill-greetings ml-2',
+      SUPPORT: 'pill pill-support ml-2',
+      NON_MESSAGE: 'pill pill-nonmessage ml-2',
       OTHER: 'pill pill-other ml-2',
     };
 
+    const intentPill = document.createElement('span');
     intentPill.className = intentClassMap[intent] || 'pill pill-other ml-2';
-
     intentPill.textContent = intentMap[intent] || 'Geral';
     badge.appendChild(intentPill);
 
+    // Replies
     replyPT = data.reply_pt || '';
     replyEN = data.reply_en || '';
-    currentReplyLang =
-      localStorage.getItem('replyLang') || data.reply_lang_default || 'pt';
-    reply.value = currentReplyLang === 'pt' ? replyPT : replyEN;
+
+    // idioma padrão: respeita preferido salvo, senão o que veio do backend
+    const preferred = localStorage.getItem('replyLang');
+    const defaultLang = (
+      preferred ||
+      data.reply_lang_default ||
+      'pt'
+    ).toLowerCase();
+
+    if (defaultLang === 'en' && replyEN) {
+      currentReplyLang = 'en';
+      reply.value = replyEN;
+    } else {
+      currentReplyLang = 'pt';
+      reply.value = replyPT || replyEN || '';
+    }
+    localStorage.setItem('replyLang', currentReplyLang);
     updateLangButtons();
 
     // Explicação
@@ -348,7 +428,11 @@ form.addEventListener('submit', async e => {
     preview.innerText = data.text_preview || '';
   } catch (err) {
     console.error(err);
-    alert('Falha na comunicação com o servidor.');
+    if (err?.name === 'AbortError') {
+      alert('Tempo excedido ao processar. Tente novamente.');
+    } else {
+      alert('Falha na comunicação com o servidor.');
+    }
   } finally {
     setLoading(false);
   }
