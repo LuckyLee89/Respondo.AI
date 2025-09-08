@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/static/favicon.ico" sizes="any" />
     <title>AutoU — Classificador & Respostas de Email</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,16 +32,17 @@
               class="h-24 w-24 md:h-28 md:w-28 rounded-full bg-white p-1 shadow object-cover cursor-pointer"
             />
             <!-- Botão de editar -->
+            <!-- Botão de editar -->
             <button
               id="brandLogoEdit"
               type="button"
-              class="absolute -bottom-2 -right-2 opacity-0 group-hover:opacity-100 transition bg-violet-600 hover:bg-violet-700 text-white rounded-full w-9 h-9 grid place-content-center shadow"
+              class="absolute -bottom-2 -right-2 opacity-0 group-hover:opacity-100 transition bg-violet-600 hover:bg-violet-700 text-white rounded-full w-9 h-9 grid place-content-center shadow z-10"
               aria-label="Alterar logo"
               title="Alterar logo"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-4.5 h-4.5"
+                class="w-5 h-5"
                 viewBox="0 0 24 24"
                 fill="white"
                 stroke="currentColor"
@@ -54,6 +56,7 @@
                 <circle cx="12" cy="13" r="4" fill="currentColor" />
               </svg>
             </button>
+
             <input
               id="brandLogoFile"
               type="file"
