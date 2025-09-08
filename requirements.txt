@@ -17,8 +17,9 @@ PyMuPDF==1.24.10   # mais rápido/robusto para PDF que não seja só imagem
 # --- Suporte a encoding / charset ---
 chardet>=5.2.0
 
-# --- (Opcional) OCR para PDFs escaneados/imagem ---
-# pytesseract==0.3.13
-# ocrmypdf==16.4.1
-# Pillow>=10.3.0
-# -> Requer instalar Tesseract no sistema (apt-get install tesseract-ocr)
+# --- Outros ---
+httpx==0.27.2
+httpcore==0.18.3
+pytesseract==0.3.13
+ocrmypdf==16.4.1
+Pillow>=10.3.0
