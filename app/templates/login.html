@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Entrar — AutoU</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-sky-50"
+  >
+    <main class="min-h-screen flex items-center justify-center px-4 sm:px-6">
+      <div
+        class="glass rounded-3xl shadow-2xl w-full max-w-3xl p-8 sm:p-12 md:p-16"
+      >
+        <!-- Logo + título -->
+        <div class="flex flex-col items-center mb-8 md:mb-12">
+          <img
+            src="/static/logo.png"
+            alt="Logo"
+            class="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 rounded-full bg-white p-2 shadow object-cover mb-4"
+          />
+          <h1
+            class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-1"
+          >
+            Entrar
+          </h1>
+          <p class="text-sm sm:text-base md:text-lg text-slate-500">
+            Acesse o AutoU
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="/login" class="space-y-6 md:space-y-8">
+          <div>
+            <label
+              class="block text-sm sm:text-base font-medium text-slate-700 mb-2"
+            >
+              Senha
+            </label>
+
+            <!-- Campo de senha com olhinho dentro -->
+            <div class="relative">
+              <input
+                id="loginPassword"
+                name="password"
+                type="password"
+                required
+                placeholder="Sua senha de acesso"
+                class="w-full border border-slate-200 rounded-xl p-3 sm:p-4 pr-12 text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                aria-label="Mostrar/ocultar senha"
+                class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-600"
+              >
+                <!-- Ícone olho aberto -->
+                <svg
+                  id="eyeOpen"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 sm:h-6 sm:w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7
+                           -1.274 4.057-5.065 7-9.542 7 -4.477 0 -8.268-2.943 -9.542-7z"
+                  />
+                </svg>
+                <!-- Ícone olho fechado -->
+                <svg
+                  id="eyeClosed"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 sm:h-6 sm:w-6 hidden"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7
+                           a9.956 9.956 0 012.64-4.362m4.111-2.425A9.956 9.956 0 0112 5
+                           c4.477 0 8.268 2.943 9.542 7a9.953 9.953 0 01-4.641 5.136M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 3l18 18"
+                  />
+                </svg>
+              </button>
+            </div>
+            <!-- /Campo -->
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl py-3 sm:py-4 text-base sm:text-lg font-semibold transition"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <p class="text-sm text-slate-400 mt-10 text-center">
+          by. Lincon A. Pereira - 2025.
+        </p>
+      </div>
+    </main>
+
+    <script>
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('loginPassword');
+      const eyeOpen = document.getElementById('eyeOpen');
+      const eyeClosed = document.getElementById('eyeClosed');
+
+      togglePassword.addEventListener('click', () => {
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        eyeOpen.classList.toggle('hidden', isHidden);
+        eyeClosed.classList.toggle('hidden', !isHidden);
+      });
+    </script>
+  </body>
+</html>

@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Dict, Optional
 
-# -------------------- Constantes / ENV --------------------
 OPENAI = "openai"
 HF     = "huggingface"
 LOCAL  = "local"
@@ -215,7 +214,6 @@ def _hf_post(model: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         "Content-Type": "application/json",
     }
 
-    # garante options padrão sem sobrescrever as que vierem no payload
     opts = payload.get("options", {})
     opts.setdefault("wait_for_model", True)
     opts.setdefault("use_cache", True)
@@ -228,13 +226,11 @@ def _hf_post(model: str, payload: Dict[str, Any]) -> Dict[str, Any]:
             r = requests.post(url, headers=headers, json=payload, timeout=HF_TIMEOUT)
             ms = int((time.perf_counter() - t0) * 1000)
 
-            # 503 = model loading | 429 = rate limit → backoff e retry
             if r.status_code in (503, 429):
                 print(f"[hf] {r.status_code} (retry) model={model} attempt={attempt}/{HF_RETRIES} ms={ms}")
                 time.sleep((HF_BACKOFF ** attempt))
                 continue
 
-            # outros não-200
             if r.status_code != 200:
                 try:
                     body = r.json()
@@ -243,7 +239,6 @@ def _hf_post(model: str, payload: Dict[str, Any]) -> Dict[str, Any]:
                 raise RuntimeError(f"HF non-200 {r.status_code}: {body}")
 
             out = r.json()
-            # alguns endpoints retornam {"error": "..."} mesmo com 200
             if isinstance(out, dict) and out.get("error"):
                 err = out.get("error", "")
                 print(f"[hf] 200-with-error: {err}")
@@ -325,10 +320,6 @@ def _hf_generate(text: str, instruction: str, lang: str) -> str:
                 ms = int((time.perf_counter() - start) * 1000)
                 print(f"[hf] gen repo={repo} ms={ms} attempt={attempt}/{HF_RETRIES}")
 
-                # Possíveis formatos:
-                # 1) [{"generated_text": "..."}]
-                # 2) {"generated_text": "..."}
-                # 3) [{"generated_text": "prompt...Reply: ..."}] → cortar após "Reply:"
                 text_out = ""
                 if isinstance(out, list) and out:
                     cand = out[0] or {}
@@ -337,12 +328,9 @@ def _hf_generate(text: str, instruction: str, lang: str) -> str:
                     text_out = out.get("generated_text", "")
 
                 if not text_out:
-                    # alguns modelos retornam somente o "token stream" — tentar extrair do payload
                     print("[hf] gen empty response, retrying…")
                     time.sleep(HF_BACKOFF * attempt)
                     continue
-
-                # se veio o prompt + "Reply:", corta e mantém só a parte final
                 if "Reply:" in text_out:
                     text_out = text_out.split("Reply:", 1)[-1].strip()
 
@@ -363,7 +351,6 @@ def _hf_classify_and_intent(text: str) -> AIClassifyResult:
     try:
         # Categoria: Produtivo | Improdutivo
         cat_res = _hf_zero_shot(text, ["Produtivo", "Improdutivo"])
-        # Formato típico: {"sequence":"...", "labels":[...], "scores":[...]}
         if isinstance(cat_res, dict) and cat_res.get("labels"):
             cat = str(cat_res["labels"][0])
             cat_score = float(cat_res["scores"][0])

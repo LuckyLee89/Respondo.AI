@@ -11,7 +11,6 @@ def get_config():
     default_logo = url_for("static", filename="logo.png")
     logo_url = os.getenv("LOGO_URL", default_logo).strip() or default_logo
 
-    # cor primária opcional (para temas futuros)
     primary_color = os.getenv("PRIMARY_COLOR", "").strip()
 
     return jsonify({

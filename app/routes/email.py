@@ -9,7 +9,7 @@ import uuid
 
 email_bp = Blueprint("email", __name__)
 
-REQUIRE_AI = os.getenv("REQUIRE_AI", "true").lower() == "true"   # IA obrigatória por padrão
+REQUIRE_AI = os.getenv("REQUIRE_AI", "true").lower() == "true"
 
 
 @email_bp.get("/")
@@ -145,10 +145,8 @@ def classify():
         if doc_only:
             intent = "NON_MESSAGE"
         else:
-            # Consolida intenções
             intent = _pick_intent(intent_api, intent_local, intent_cfg)
 
-            # Evita confundir ATTACHMENT com ERROR quando há termos de erro
             ERROR_SIGNS = r"\b(erro|falha|bug|inoperante|indispon[ií]vel|lentid[aã]o|exce[cç][aã]o|problema|incidente|error|failure|crash|timeout|stacktrace|exception|issue|incident)\b"
             if intent == "ATTACHMENT" and re.search(ERROR_SIGNS, (raw_text or "").lower()):
                 intent = "ERROR"
@@ -170,7 +168,6 @@ def classify():
         gen_start = time.perf_counter()
         try:
             if ai_res.ok and not doc_only:
-                # Gera primeiro na língua escolhida (auto -> detectada), depois a outra
                 order = [chosen_lang, "en" if chosen_lang == "pt" else "pt"]
                 out = {}
                 for L in order:
@@ -186,7 +183,7 @@ def classify():
         except Exception as e:
             print(f"[{req_id}] Erro ao gerar resposta via IA: {e}")
 
-        # fallback de template (inclui caso doc_only)
+
         if not reply_pt:
             reply_pt = build_reply(raw_text, category=label, lang='pt', intent=intent).strip()
         if not reply_en:
