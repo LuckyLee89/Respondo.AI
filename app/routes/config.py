@@ -5,7 +5,7 @@ config_bp = Blueprint("config", __name__)
 
 @config_bp.get("/config")
 def get_config():
-    company_name = os.getenv("COMPANY_NAME", "AutoU").strip() or "AutoU"
+    company_name = os.getenv("COMPANY_NAME", "Respondo.AI").strip() or "AutoU"
 
     # por padrão, procura por /static/logo.png
     default_logo = url_for("static", filename="logo.png")

@@ -1,4 +1,4 @@
-# AutoU — Classificação Inteligente de E-mails
+# Respondo.AI — Classificação Inteligente de E-mails
 
 Aplicação web para **classificar e-mails** e **sugerir respostas automáticas** (PT/EN) usando NLP + IA.  
 Agora com **tela de login** protegida por senha e suporte a logout.
@@ -36,8 +36,8 @@ Agora com **tela de login** protegida por senha e suporte a logout.
 1. Clone e entre no projeto:
 
 ```bash
-git clone https://github.com/LuckyLee89/Desafio-AutoU.git
-cd Desafio-AutoU
+git clone https://github.com/LuckyLee89/Respondo.AI.git
+cd Respondo.AI
 ```
 
 2. Crie e ative o ambiente:
